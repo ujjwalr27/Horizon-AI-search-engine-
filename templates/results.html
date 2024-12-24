@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Horizon - Search Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #475569;
+            --surface: #ffffff;
+            --text: #1f2937;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.95)), 
+                        url('/static/ocean.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text);
+        }
+
+        .results-container {
+            max-width: 64rem;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-radius: 1rem;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            letter-spacing: 2px;
+        }
+
+        .search-form {
+            flex: 1;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 9999px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            background: rgba(255,255,255,0.3);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .search-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-button:hover {
+            background: #1d4ed8;
+            transform: scale(1.05);
+        }
+
+        .results-stats {
+            color: white;
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+            animation-delay: 0.3s;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        .results-grid {
+            display: grid;
+            gap: 1.5rem;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        .result-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.2);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .result-title {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 600;
+            line-height: 1.4;
+            transition: color 0.2s;
+        }
+
+        .result-title:hover {
+            color: #1d4ed8;
+        }
+
+        .result-rank {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .result-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+
+        .result-snippet {
+            color: var(--text);
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .result-summary {
+            background: rgba(37, 99, 235, 0.1);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            transition: background-color 0.2s;
+        }
+
+        .result-summary:hover {
+            background: rgba(37, 99, 235, 0.15);
+        }
+
+        .summary-label {
+            color: var(--primary);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .action-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-button:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .action-button.marked {
+            background: #10b981;
+            cursor: default;
+        }
+
+        .action-button svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .semantic-score {
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            .search-form {
+                width: 100%;
+            }
+            
+            .results-container {
+                padding: 1rem;
+            }
+            
+            .result-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .result-rank {
+                align-self: flex-start;
+            }
+            .error-toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ef4444;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 9999px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        z-index: 50;
+        animation: slideUp 0.3s ease-out;
+    }
+
+    @keyframes slideUp {
+        from { transform: translate(-50%, 100%); opacity: 0; }
+        to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    .action-button.error {
+        background: #ef4444;
+    }
+
+    .action-button.error:hover {
+        background: #dc2626;
+    }
+
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+        }
+        /* Add to the existing styles section in results.html */
+
+.time-filters {
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.time-filters select {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 9999px;
+    padding: 0.5rem 1rem;
+    color: white;
+    font-size: 0.875rem;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.time-filters select:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.time-filters select:focus {
+    background: rgba(255,255,255,0.3);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
+}
+
+.time-filters select option {
+    background: #1f2937;
+    color: white;
+}
+
+.click-count {
+    font-size: 0.875rem;
+    color: var(--secondary);
+    margin-left: 1rem;
+}
+
+.result-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.result-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.relevance-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    color: #10b981;
+}
+
+.relevance-indicator svg {
+    width: 16px;
+    height: 16px;
+}
+
+.result-card.relevant {
+    border-left: 4px solid #10b981;
+}
+/* Add to existing styles section */
+.relevance-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.result-card.relevant {
+    border-left: 4px solid #10b981;
+    padding-left: calc(1.5rem - 4px);
+}
+
+.error-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ef4444;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 50;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translate(-50%, 100%); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.loading-indicator {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.time-filter-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.time-filter-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.875rem;
+}
+    </style>
+    
+
+</head>
+<body>
+    <div class="results-container">
+        <header class="header">
+            <a href="/" class="logo">HORIZON</a>
+            <form class="search-form" method="GET" action="/search">
+                <input 
+                    type="text" 
+                    name="query" 
+                    class="search-input" 
+                    value="{{ query }}"
+                    required
+                    autocomplete="off"
+                    placeholder="Search again..."
+                >
+                <button type="submit" class="search-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </form>
+        </header>
+        <div class="time-filters">
+            <select id="timeFilter" onchange="updateTimeFilter(this.value)">
+                <option value="">All time</option>
+                <option value="day">Past 24 hours</option>
+                <option value="month">Past month</option>
+                <option value="year">Past year</option>
+            </select>
+        </div>
+
+        <div class="results-stats">
+            Found {{ results|length }} results for "{{ query }}"
+        </div>
+
+        <div class="results-grid">
+            {% for result in results %}
+            <article class="result-card">
+                <div class="result-header">
+                    <a href="{{ result.link }}" class="result-title" target="_blank" rel="noopener">
+                        {{ result.title }}
+                    </a>
+                    <span class="result-rank">#{{ result.rank }}</span>
+                </div>
+                
+                <div class="result-meta">
+                    <span class="semantic-score">
+                        ML Score: {{ "%.2f"|format(result.ml_rank) }}
+                    </span>
+                </div>
+
+                <p class="result-snippet">{{ result.snippet }}</p>
+
+                {% if result.rag_summary %}
+                <div class="result-summary">
+                    <span class="summary-label">AI Summary:</span>
+                    <p>{{ result.rag_summary }}</p>
+                </div>
+                {% endif %}
+
+                <div class="actions">
+                    <button 
+                        class="action-button mark-relevant-btn"
+                        data-link="{{ result.link }}"
+                        data-query="{{ query }}"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                        </svg>
+                        Mark as Relevant
+                    </button>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        // Add error handling utility
+        // Add this function in your script section
+   function updateTimeFilter(value) {
+       const urlParams = new URLSearchParams(window.location.search);
+       urlParams.set('time_filter', value);
+       window.location.search = urlParams.toString();
+   }
+        function showError(message, duration = 3000) {
+           const toast = document.createElement('div');
+           toast.className = 'error-toast';
+           toast.textContent = message;
+           document.body.appendChild(toast);
+           setTimeout(() => toast.remove(), duration);
+       }
+   
+       // Add loading indicator utility
+       function setLoading(button, isLoading) {
+           if (isLoading) {
+               button.disabled = true;
+               button.innerHTML = `
+                   <svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                       <circle cx="12" cy="12" r="10"></circle>
+                       <path d="M12 6v6l4 2"></path>
+                   </svg>
+                   Processing...
+               `;
+           } else {
+               button.disabled = false;
+               button.innerHTML = `
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                       <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+                   </svg>
+                   Mark as Relevant
+               `;
+           }
+       }
+       // Enhanced error handling for mark relevant
+       async function markRelevant(button, data) {
+           try {
+               setLoading(button, true);
+   
+               const response = await fetch('/mark-relevant', {
+                   method: 'POST',
+                   headers: {
+                       'Content-Type': 'application/json',
+                   },
+                   body: JSON.stringify(data)
+               });
+   
+               const result = await response.json();
+   
+               if (!response.ok) {
+                   throw new Error(result.message || 'Failed to mark as relevant');
+               }
+   
+               if (result.status === 'success') {
+                   button.classList.add('marked');
+                   button.innerHTML = `
+                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                           <polyline points="20 6 9 17 4 12"></polyline>
+                       </svg>
+                       Marked as Relevant
+                   `;
+                   button.disabled = true;
+   
+                   // Update UI elements
+                   updateResultCardUI(button.closest('.result-card'), result.data);
+               } else {
+                   throw new Error(result.message);
+               }
+           } catch (error) {
+               console.error('Error:', error);
+               setLoading(button, false);
+               button.classList.add('error');
+               showError(error.message);
+           }
+       }
+   
+       // Function to update result card UI after marking as relevant
+       function updateResultCardUI(card, data) {
+           if (!card) return;
+   
+           // Add relevant class to card
+           card.classList.add('relevant');
+   
+           // Update click count if exists
+           const clickCount = card.querySelector('.click-count');
+           if (clickCount) {
+               clickCount.textContent = `Clicks: ${data.click_count}`;
+           }
+   
+           // Add relevance indicator if not exists
+           if (!card.querySelector('.relevance-indicator')) {
+               const meta = card.querySelector('.result-meta');
+               const indicator = document.createElement('div');
+               indicator.className = 'relevance-indicator';
+               indicator.innerHTML = `
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                       <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                   </svg>
+                   Relevant
+               `;
+               meta.appendChild(indicator);
+           }
+       }
+   
+       // Initialize time filter and relevance buttons
+       document.addEventListener('DOMContentLoaded', function() {
+           // Set initial time filter
+           const urlParams = new URLSearchParams(window.location.search);
+           const timeFilter = urlParams.get('time_filter');
+           if (timeFilter) {
+               document.getElementById('timeFilter').value = timeFilter;
+           }
+   
+           // Add event listeners to all mark relevant buttons
+           document.querySelectorAll('.mark-relevant-btn').forEach(button => {
+               button.addEventListener('click', function() {
+                   const resultCard = this.closest('.result-card');
+                   const data = {
+                       query: this.dataset.query,
+                       link: this.dataset.link,
+                       title: resultCard.querySelector('.result-title').textContent.trim(),
+                       snippet: resultCard.querySelector('.result-snippet').textContent.trim(),
+                       ml_rank: parseFloat(resultCard.querySelector('.semantic-score').textContent.split(':')[1].trim()),
+                       rag_summary: resultCard.querySelector('.result-summary p')?.textContent.trim()
+                   };
+                   markRelevant(this, data);
+               });
+           });
+       });
+   </script>
+</body>
+
+</html>

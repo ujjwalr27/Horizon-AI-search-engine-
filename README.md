@@ -52,10 +52,10 @@ Horizon Search/
 ```
 ## 🚀 Quick Start
 ### Prerequisites
-Python 3.8+
-Redis Server
-Supabase Account
-Google Custom Search API credentials
+- Python 3.8+
+- Redis Server
+- Supabase Account
+- Google Custom Search API credentials
 
 ### Installation
 1. Clone the repository:
